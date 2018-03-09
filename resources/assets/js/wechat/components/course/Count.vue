@@ -76,7 +76,7 @@
 
         <div v-transfer-dom>
             <popup v-model="count" position="right">
-                <div style="width:350px;">
+                <div style="width:330px;">
                     <divider>教研室</divider>
                     <checker
                             v-model="set.selStaffrooms"
