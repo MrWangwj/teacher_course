@@ -6,8 +6,9 @@ Vue.use(VueRouter);
 export default new VueRouter({
     routes: [
         {
-            path: '/test',
-            component: resolve => void(require(['../components/Test.vue'], resolve)),
-        }
+            path: '/course/count',
+            component: resolve => void(require(['../components/course/Count.vue'], resolve)),
+
+        },
     ],
 });
