@@ -440,6 +440,8 @@
             getSelStudents() {
 
                 this.set.selTeachers = [];
+                this.selTeacher.teachers = [];
+
                 let all = this.get.teachers,
                     staffrooms = this.set.selStaffrooms,
                     joblevels = this.set.selJoblevels,
@@ -467,6 +469,7 @@
                                 id: index,
                                 name: all[index].name,
                             });
+                            this.selTeacher.teachers.push(index);
                         }
                     }
                 }
@@ -610,16 +613,18 @@
             //选择人员
             selStuFun(){
 
-                this.set.selTeachers = [];
+                if(type2Data.showHideOnBlur){
+                    this.set.selTeachers = [];
 
-                for( let i in this.selTeacher.teachers){
-                    let id = this.selTeacher.teachers[i];
-                    this.set.selTeachers.push({
-                        id: id,
-                        name: this.get.teachers[id].name,
-                    });
+                    for( let i in this.selTeacher.teachers){
+                        let id = this.selTeacher.teachers[i];
+                        this.set.selTeachers.push({
+                            id: id,
+                            name: this.get.teachers[id].name,
+                        });
+                    }
+                    this.getCourses();
                 }
-                this.getCourses();
             },
 
             selAllStu(){
