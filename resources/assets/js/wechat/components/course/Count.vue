@@ -467,7 +467,6 @@
                                 id: index,
                                 name: all[index].name,
                             });
-                            break;
                         }
                     }
                 }

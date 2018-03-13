@@ -16,7 +16,7 @@ class TeacherController extends Controller
 {
     //获取教师信息
     function data(){
-        $teachers = Teacher::with(['joblevel', 'jobtype', 'staffroom', 'title'])->get();
+        $teachers = Teacher::with(['joblevel', 'jobtype', 'staffroom', 'title'])->orderBy('name_py')->get();
         return $teachers;
     }
 
