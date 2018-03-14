@@ -14,7 +14,7 @@ class TeacherController extends Controller
     //
     public function types(){
         $joblevels = Joblevel::orderBy('id')->get(['id', 'name']);
-        $jobtypes = Jobtype::orderBy('id')->get(['id', 'name']);
+        $jobtypes = Jobtype::orderBy('name')->get(['id', 'name']);
         $staffrooms = Staffroom::orderBy('id')->get(['id', 'name']);
         $titles = Title::orderBy('id')->get(['id', 'name']);
         return compact(['joblevels', 'jobtypes', 'staffrooms', 'titles']);

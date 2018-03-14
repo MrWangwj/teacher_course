@@ -438,7 +438,6 @@
 
             //获取当前选择的用户
             getSelStudents() {
-
                 this.set.selTeachers = [];
                 this.selTeacher.teachers = [];
 
@@ -474,7 +473,7 @@
                     }
                 }
 
-                // console.log(this.set.selTeachers);
+                console.log(this.set.selTeachers);
                 this.getCourses();
             },
 
@@ -552,6 +551,8 @@
                     }
                 }
 
+                // console.log(this.haveCourses);
+
                 // 获取用户无课人员信息
 
                 for (let i = 0; i < 7; i++) {
@@ -578,6 +579,8 @@
                         }
                     }
                 }
+
+
 
                 this.haveNoCourseFun(false);
             },
@@ -613,7 +616,7 @@
             //选择人员
             selStuFun(){
 
-                if(type2Data.showHideOnBlur){
+                if(this.type2Data.showHideOnBlur){
                     this.set.selTeachers = [];
 
                     for( let i in this.selTeacher.teachers){
