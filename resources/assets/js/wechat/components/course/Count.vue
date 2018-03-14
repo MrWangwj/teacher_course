@@ -615,8 +615,7 @@
 
             //选择人员
             selStuFun(){
-
-                if(this.type2Data.showHideOnBlur){
+                if(this.selTeacher.showHideOnBlur){
                     this.set.selTeachers = [];
 
                     for( let i in this.selTeacher.teachers){
