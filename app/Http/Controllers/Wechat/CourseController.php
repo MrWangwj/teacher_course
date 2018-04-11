@@ -11,14 +11,17 @@ class CourseController extends Controller
 {
     //
     public function count(){
-        $collection = Teacher::with('courses')->orderBy('name_py')->get();
+        $term_id = Setting::getNowTermId();
+
+        $collection = Teacher::with(['courses' => function($query) use($term_id){
+            $query->where('term_id', $term_id);
+        }])->orderBy('name_py')->get();
 
         $teachers = [];
 
         foreach ($collection->toArray() as $value){
             $teachers['t'.$value['id']] = $value;
         }
-
 
         $nowWeek = Setting::getNowWeek();
         return compact(['teachers', 'nowWeek']);

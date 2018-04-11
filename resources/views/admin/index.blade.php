@@ -1,24 +1,20 @@
-<!doctype html>
-<html lang="{{ app()->getLocale() }}">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Laravel</title>
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-
-    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url('/css/main.css') }}">
+    <link href="{{ url('css/ionicons.min.css') }}" rel="stylesheet"/>
+    {{--<script type="text/javascript" src="{{ url('js/jquery.min.js') }}"></script>--}}
+    <title>{{ config("app.name") }}</title>
 </head>
 <body>
-<div id="app">
-</div>
+<div id="app"></div>
 
-<script src="/js/manifest.js"></script>
-<script src="/js/vendor.js"></script>
-<script src="/js/admin.js"></script>
+<script src="{{ mix('js/manifest.js') }}"></script>
+<script src="{{ mix('js/vendor.js') }}"></script>
+<script src="{{ mix('js/admin.js') }}"></script>
 </body>
-
 </html>

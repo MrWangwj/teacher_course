@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Model\Course;
 use App\Model\Joblevel;
 use App\Model\Jobtype;
+use App\Model\Setting;
 use App\Model\Staffroom;
 use App\Model\Teacher;
 use App\Model\Title;
@@ -14,6 +15,8 @@ use Overtrue\LaravelPinyin\Facades\Pinyin;
 
 class TeacherController extends Controller
 {
+
+
     //获取教师信息
     function data(){
         $teachers = Teacher::with(['joblevel', 'jobtype', 'staffroom', 'title'])->orderBy('name_py')->get();
@@ -60,7 +63,10 @@ class TeacherController extends Controller
 
 
     public function teacherCourses(){
-        $teacher = Teacher::with('courses')->where('id', \request('id'))->first();
+        $term_id = Setting::getNowTermId();
+        $teacher = Teacher::with(['courses' => function($query) use($term_id){
+            $query->where('term_id', $term_id);
+        }])->where('id', \request('id'))->first();
 
         if($teacher)
             return $this->returnJSON(1, 'success', $teacher);
@@ -72,10 +78,17 @@ class TeacherController extends Controller
 //            'user-id' => 'required|numeric|exists:users,id',
 //        ]);
 
-        $user = Teacher::where('id', request('id'))->first();
+
+        $term_id = Setting::getNowTermId();
+        $user = Teacher::with(['courses' => function($query)use($term_id){
+            $query->select(['courses.id'])->where('term_id', $term_id);
+        }])->where('id', request('id'))->first();
 
 
-        $user->courses()->detach();
+        if(!$user)
+            return $this->returnJSON(0, '清除失败');
+        $course_ids = $user->courses->pluck('id')->toArray();
+        $user->courses()->detach($course_ids);
         return ['code' => 1, 'msg' => '清除成功'];
     }
 
@@ -130,10 +143,10 @@ class TeacherController extends Controller
             return ['code' => 0, 'msg' => '课程冲突'.$result->first()->name];
         }
 
+
         //存储
-
-
-        $course = (Course::firstOrCreate(request([
+        $term_id = Setting::getNowTermId();
+        $data = request([
             'name',
             'teacher',
             'location',
@@ -143,7 +156,9 @@ class TeacherController extends Controller
             'section_end',
             'week_day',
             'week_type'
-        ])));
+        ]);
+        $data['term_id'] = $term_id;
+        $course = (Course::firstOrCreate($data));
         if(!$course){
             return ['code' => 1, 'msg' => '添加失败'];
         }
@@ -209,7 +224,8 @@ class TeacherController extends Controller
 
 
         //存储
-        $course = (Course::firstOrCreate(request([
+        $term_id = Setting::getNowTermId();
+        $data = request([
             'name',
             'teacher',
             'location',
@@ -219,7 +235,9 @@ class TeacherController extends Controller
             'section_end',
             'week_day',
             'week_type'
-        ])));
+        ]);
+        $data['term_id'] = $term_id;
+        $course = (Course::firstOrCreate($data));
         if(!$course){
             return ['code' => 0, 'msg' => ' 修改失败'];
         }
@@ -246,4 +264,11 @@ class TeacherController extends Controller
         $user->courses()->detach(request('id'));
         return ['code' => 1, 'msg' => '删除成功'];
     }
+
+    public function getTeacherNames(){
+        $data = Teacher::orderBy('name_py')->get(['id','name']);
+        return $data;
+    }
+
+
 }

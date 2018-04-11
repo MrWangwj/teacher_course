@@ -5,15 +5,15 @@
                 <el-col :span="24">
                     <div class="grid-content bg-purple">
                         <el-button type="primary" size="mini" @click="addTeacherBut">添加</el-button>
-                        <el-button type="primary" size="mini">导入</el-button>
-                        <el-select v-model="value" placeholder="请选择" size="mini" class="">
-                            <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                            </el-option>
-                        </el-select>
+                        <!--<el-button type="primary" size="mini">导入</el-button>-->
+                        <!--<el-select v-model="value" placeholder="请选择" size="mini" class="">-->
+                            <!--<el-option-->
+                                    <!--v-for="item in options"-->
+                                    <!--:key="item.value"-->
+                                    <!--:label="item.label"-->
+                                    <!--:value="item.value">-->
+                            <!--</el-option>-->
+                        <!--</el-select>-->
                     </div>
                 </el-col>
             </el-row>
