@@ -11,6 +11,7 @@
                 <el-button v-if="$route.path === '/teacher/course/type/one/'+$route.params.id || $route.path === '/teacher/course'" type="primary" @click="changeType('/teacher/course/type/two/'+$route.params.id)">格式二</el-button>
                 <el-button type="primary" @click="addCourseVisible = true">添加课程</el-button>
                 <el-button type="primary" @click="clearAllCourse">清除所有课表</el-button>
+                <el-button type="primary" @click="importCourse">一键导入</el-button>
             </div>
         </div>
 
@@ -313,6 +314,17 @@
                         }
                     });
                 });
+            },
+            importCourse(){
+                const h = this.$createElement;
+                this.$alert('<div class="code-div"><img src="admin/teacher/course/verification" alt=""><input type="text" name="number" placeholder="请输入验证码" class="code-submit"></div>', '请输入验证码', {
+                    dangerouslyUseHTMLString: true,
+                    showCancelButton: true,
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                }).then(action => {
+
+                });
             }
         },
 
@@ -326,5 +338,15 @@
 <style>
     .dialog-width>div{
         min-width: 520px;
+    }
+    .code-submit{
+        width: 200px;
+        height: 30px;
+        float: right;
+        margin: 10px 30px;
+        outline:none;
+    }
+    .code-div{
+        width: 100%;
     }
 </style>
