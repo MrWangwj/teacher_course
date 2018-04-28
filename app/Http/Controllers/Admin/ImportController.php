@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Model\Course;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
+use App\Model\Teacher;
+use App\Model\Teachercourse;
 
 class ImportController extends Controller
 {
@@ -48,9 +52,9 @@ class ImportController extends Controller
         $reg='/(\d{6,7}(\.\d+)?)/is';//匹配数字的正则表达式
         preg_match_all($reg,$crawler,$result);
         if(is_array($result)&&!empty($result)&&!empty($result[1])&&!empty($result[1][0])){
-            if (count($result[1])==1){
+            if ((count($result[1])==2)||count($result[1])==1){
                  return $result[1][0];
-            }elseif (count($result[1])>1){
+            }elseif (count($result[1])>2){
                 preg_match_all("/\(([\s\S]*?)\)/",$crawler, $result_teacher);
                 for ($i = 1 ; $i < count($result_teacher[1]) ;$i++){
                     if ($result_teacher[1][$i] == '&#20449;&#24037;'){
@@ -65,7 +69,7 @@ class ImportController extends Controller
     /*
      * 返回验证码的视图
      * */
-    public function mycode(){
+    public function sendCode(){
         $jar = new CookieJar;
         $client = new Client(['base_uri'=>'http://jwgl.hist.edu.cn/jwweb/']);
         $request = $client
@@ -79,25 +83,24 @@ class ImportController extends Controller
         return $request->getBody();
     }
 
-
-    public function picture(){
-        return view('welcome');
-    }
-
-
     /*
      * 教课表组成二位数组
      * */
     public function code(Request $request){
-        $techer_name ='李晓玲';
         $code = $request->all();
-        // $code = $code['number'];
+        $techer_id =Teacher::where('id', $code['id'])->get(['name']);
+        $techer_name = $techer_id[0]->name;
         $client = new Client(['base_uri' => 'http://jwgl.hist.edu.cn/jwweb/']);
-        $teacher_id = $this->test($techer_name);
+        $teacher_id = $this->teacherId($techer_name);
         if ($teacher_id == -2){
-            return "无该教师信息！";
+            return $this->returnJSON(-2, '无该教师课表信息');
+        }
+        $teacher_exit = Teachercourse::where('teacher_id',$teacher_id)->get();
+        if (count($teacher_exit)>0){
+            return $this->returnJSON('-2','该教师的信息已存在，请清除后再添加！');
         }
         $jar = Session::get('jar');
+
         try {
             $request = $client
                 ->request('POST','ZNPK/TeacherKBFB_rpt.aspx',[
@@ -105,7 +108,7 @@ class ImportController extends Controller
                         'Sel_XNXQ' => $this->semester,
                         'Sel_JS' => $teacher_id,
                         'type' => '2',
-                        'txt_yzm'=>'tkfk',
+                        'txt_yzm'=>$code['code'],
                         '_token'=>csrf_token()
                     ],
                     'headers' => [
@@ -120,13 +123,12 @@ class ImportController extends Controller
         $course = $request->getBody();
         $course = mb_convert_encoding($course,'utf-8','gb2312');
         if (strstr($course,'验证码错误')){
-            return "验证码错误";
+            return $this->returnJSON(1, '验证码错误');
         }
         $crawler = new Crawler($course);
         $classroom = $crawler->filter('body>table>tr>td>table')->reduce(function (Crawler $node, $i) {
             return ($i == 2);
         });
-    
         $course = $classroom->filter('table > tr')->nextAll();
         $y = 0;
         $x = 0;
@@ -138,7 +140,33 @@ class ImportController extends Controller
             $course_teacher[$y][$x] = $domELement->nodeValue;
             $x++;
         }
-        $this->handle($course_teacher,$techer_name);
+        $teacher = $this->handle($course_teacher,$techer_name);
+        $data_teacher = $course_class = $this->conversion($teacher,$this->semester);
+        $teacher_course =Teachercourse::where('id', $code['id'])->get();
+        if(count($teacher_course)>0){
+            return $this->returnJSON(-2, '教师课表信息已存在，请先清除所有课表');
+        }else{
+            DB::beginTransaction();
+            try{
+                $course_id = Course::max('id');
+                Course::insert($data_teacher);
+                DB::commit();
+                if (count($course_id)==0){
+                    $course_id = Course::min('id');
+                }
+
+                for ($i = 0;$i < count($data_teacher); $i++){
+                    $teachers_id[$i]['teacher_id'] = $code['id'];
+                    $teachers_id[$i]['course_id'] = $course_id+1+$i;
+                }
+                Teachercourse::insert($teachers_id);
+                return $this->returnJSON('3',$data_teacher);
+            }catch (\Exception $e){
+                DB::rollback();
+                return $this->returnJSON('-2','插入课表失败');
+            }
+
+        }
     }
 
     /*判断周几
@@ -232,13 +260,11 @@ class ImportController extends Controller
                 $course[$tatol][9] = $course[$number_couser[$y]][9];
             }            
         }
-        var_dump($course);
         return $course;
     }
 
     public function conversion($course,$semester){
         for($i = 0; $i<count($course) ; $i++){
-            $teacher[$i]['id'] = $course[$i][0];
             $teacher[$i]['name'] = $course[$i][1];
             $teacher[$i]['location'] = $course[$i][9];
             $teacher[$i]['week_start'] = $course[$i][5];
@@ -252,4 +278,9 @@ class ImportController extends Controller
         return $teacher;
     }
 
+
+    public function s(){
+        $id = Course::max('id');
+        return $id;
+    }
 }

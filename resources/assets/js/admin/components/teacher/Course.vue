@@ -11,7 +11,7 @@
                 <el-button v-if="$route.path === '/teacher/course/type/one/'+$route.params.id || $route.path === '/teacher/course'" type="primary" @click="changeType('/teacher/course/type/two/'+$route.params.id)">格式二</el-button>
                 <el-button type="primary" @click="addCourseVisible = true">添加课程</el-button>
                 <el-button type="primary" @click="clearAllCourse">清除所有课表</el-button>
-                <el-button type="primary" @click="importCourse">一键导入</el-button>
+                <el-button type="primary" @click="code = true">一键导入</el-button>
             </div>
         </div>
 
@@ -137,8 +137,18 @@
                 <el-button type="primary" @click="addSubmit('newCourse')">添 加</el-button>
             </div>
         </el-dialog>
-
-
+        <el-dialog title="请输入验证码" :visible.sync="code">
+            <el-form ref="form" :model="form" label-width="80px">
+                <img src="admin/teacher/course/verification" @click="changeUrl" id="code-img" alt="未加载">
+                <div class="code-div">
+                    <el-input v-model="form.code" class="code-input"></el-input>
+                </div>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="code = false">取 消</el-button>
+                <el-button type="primary" @click="importCourse">提 交</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -155,6 +165,7 @@
                 },
 
                 addCourseVisible: false,
+                code:false,
 
                 courseInfos: [],
                 newCourse: {
@@ -168,6 +179,9 @@
                     end_section: '',
                 },
 
+                form:{
+                    code:''
+                },
 
                 end_weeks: [
                     1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
@@ -316,15 +330,38 @@
                 });
             },
             importCourse(){
-                const h = this.$createElement;
-                this.$alert('<div class="code-div"><img src="admin/teacher/course/verification" alt=""><input type="text" name="number" placeholder="请输入验证码" class="code-submit"></div>', '请输入验证码', {
-                    dangerouslyUseHTMLString: true,
-                    showCancelButton: true,
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                }).then(action => {
+                // const id = this.$route.params.id;
+                // console.log(this.form.code);
+                if (this.form.code != ""){
+                    axios.post('/admin/teacher/code',{
+                        'code':this.form.code,
+                        'id':this.$route.params.id
+                    }).then(response=>{
+                        let data = response.data;
+                        console.log(data);
+                        if(data.code == -2||data.code == 1){
+                            // this.changeUrl();
+                            this.$message({
+                                type: 'warm',
+                                message: data.msg
+                            });
 
-                });
+                        }else if (data.code == 3){
+                            this.$message({
+                                type: 'success',
+                                message: '添加课表成功'
+                            });
+                        }
+                    });
+                }else {
+                    this.$message({
+                        type: 'warm',
+                        message: '您未输入验证码！'
+                    });
+                }
+            },
+            changeUrl(){
+                document.getElementById("code-img").src="admin/teacher/course/verification?t="+new Date().getMilliseconds();
             }
         },
 
@@ -336,17 +373,25 @@
 </script>
 
 <style>
+    .code-div{
+        width: 50%;
+        display: inline-block;
+    }
     .dialog-width>div{
         min-width: 520px;
     }
-    .code-submit{
-        width: 200px;
-        height: 30px;
-        float: right;
-        margin: 10px 30px;
-        outline:none;
-    }
     .code-div{
         width: 100%;
+    }
+    #code-img{
+        display: inline-block;
+        width: 92px;
+        height: 42px;
+    }
+    .code-div{
+        display: inline-block;
+        width: 76%;
+        float: right;
+        margin: 1px 20px;
     }
 </style>

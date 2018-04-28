@@ -1,2 +1,3 @@
 [20-Apr-2018 07:48:07 UTC] PHP Fatal error:  Cannot use Illuminate\Http\Request as Request because the name is already in use in F:\work-php\teacher_course\app\Http\Controllers\Admin\ImportController.php on line 10
 [20-Apr-2018 07:48:19 UTC] PHP Fatal error:  Cannot use Illuminate\Http\Request as Request because the name is already in use in F:\work-php\teacher_course\app\Http\Controllers\Admin\ImportController.php on line 10
+[26-Apr-2018 12:48:37 UTC] PHP Fatal error:  Access level to App\model\Teachercourse::$table must be protected (as in class Illuminate\Database\Eloquent\Model) or weaker in F:\work-php\teacher_course\app\Model\Teachercourse.php on line 10
