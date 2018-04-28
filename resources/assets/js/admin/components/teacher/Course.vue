@@ -271,7 +271,6 @@
             addSubmit(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-
                         axios.post('/admin/teacher/course/add',{
                             id:  this.userId,
                             name:       this.newCourse.name,
@@ -351,6 +350,8 @@
                                 type: 'success',
                                 message: '添加课表成功'
                             });
+                            this.courseInfos = data.msg;
+                            this.userId = data.data;
                         }
                     });
                 }else {

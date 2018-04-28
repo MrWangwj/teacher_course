@@ -95,7 +95,7 @@ class ImportController extends Controller
         if ($teacher_id == -2){
             return $this->returnJSON(-2, '无该教师课表信息');
         }
-        $teacher_exit = Teachercourse::where('teacher_id',$teacher_id)->get();
+        $teacher_exit = Teachercourse::where('teacher_id',$code['id'])->get();
         if (count($teacher_exit)>0){
             return $this->returnJSON('-2','该教师的信息已存在，请清除后再添加！');
         }
@@ -160,7 +160,7 @@ class ImportController extends Controller
                     $teachers_id[$i]['course_id'] = $course_id+1+$i;
                 }
                 Teachercourse::insert($teachers_id);
-                return $this->returnJSON('3',$data_teacher);
+                return $this->returnJSON('3',$data_teacher,$teacher_id);
             }catch (\Exception $e){
                 DB::rollback();
                 return $this->returnJSON('-2','插入课表失败');
