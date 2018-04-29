@@ -9,15 +9,26 @@ cp .env.example .env
 ```
 #### 3. 安装 `composer` 依赖
 ```
-composer update
+composer install
 ```
-#### 4. 安装 `npm` 依赖
+
+#### 4. 创建数据库，并执行数据迁移
+```
+php artisan migrate
+```
+#### 5. 插入需要的数据
+```
+php artisan db:seed
+```
+
+#### 6. 安装 `npm` 依赖
 ```
 npm install
 ```
 
-#### 5. 编译
+#### 7. 编译
 ```
 npm run dev
 ```
-#### 6. 配置虚拟主机
+#### 8. 配置虚拟主机
+
