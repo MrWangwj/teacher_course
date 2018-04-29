@@ -41,6 +41,12 @@ Route::prefix('admin')->namespace('Admin')->group(function (){
             Route::post('/course/add', 'TeacherController@addCourse');
             Route::post('/course/edit', 'TeacherController@editCourse');
             Route::post('/course/delete', 'TeacherController@deleteCourse');
+
+
+            Route::any('/course/verification', 'ImportController@sendCode');
+            Route::any('/teacherId', 'ImportController@teacherId');
+            Route::any('/code', 'ImportController@code');
+            Route::any('/s', 'ImportController@s');
         });
 
 
