@@ -21,6 +21,7 @@ class CreateNodesTable extends Migration
             $table->tinyInteger('depth')->comment('层级');
             $table->string('path', 30)->comment('路径');
             $table->tinyInteger('type')->comment('类型：0 菜单，1，按钮， 1 api');
+            $table->string('icon', 20)->comment('图标');
             $table->integer('sort_factor')->comment('排序规则');
             $table->tinyInteger('status')->comment('状态');
             $table->timestamps();

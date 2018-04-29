@@ -16,6 +16,7 @@ class CreateStaffroomsTable extends Migration
         Schema::create('staffrooms', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 20)->unique();
+            $table->tinyInteger('sort')->comment('排序字段');
             $table->timestamps();
         });
     }
