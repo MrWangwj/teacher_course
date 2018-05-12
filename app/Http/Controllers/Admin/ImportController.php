@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Model\Course;
+use App\Model\Setting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
@@ -19,18 +20,18 @@ class ImportController extends Controller
 {
     private $semester;
     public function __construct(){
-        $months = date('m',time());
-        if ($months < 8){
-            $kind = 1;
-            $year = date('Y',time());
-            $year = $year-1;
-            $this->semester = $year.$kind;
-        }else{
-            $kind = 0;
-            $year = date('Y',time());
-            $this->semester = $year.$kind;
-        }
+    $months = date('m',time());
+    if ($months < 8){
+        $kind = 1;
+        $year = date('Y',time());
+        $year = $year-1;
+        $this->semester = $year.$kind;
+    }else{
+        $kind = 0;
+        $year = date('Y',time());
+        $this->semester = $year.$kind;
     }
+}
 
     /*
      * 获取教师的id号
@@ -79,7 +80,7 @@ class ImportController extends Controller
                 ],
                 'cookies' => $jar,
             ]);
-         Session::put('jar',$jar);
+        Session::put('jar',$jar);
         return $request->getBody();
     }
 
@@ -95,13 +96,13 @@ class ImportController extends Controller
         if ($teacher_id == -2){
             return $this->returnJSON(-2, '无该教师课表信息');
         }
-        $teacher_exit = Teachercourse::where('teacher_id',$code['id'])->get();
+        $teacher_exit = Teacher::find($code['id'])->courses()->get();
         if (count($teacher_exit)>0){
-            return $this->returnJSON('-2','该教师的信息已存在，请清除后再添加！');
+            $this->romoveCourse($code['id']);
         }
         $jar = Session::get('jar');
 
-        try {
+        try {                                                                                               //发送请求获取含有课表信息的html页面
             $request = $client
                 ->request('POST','ZNPK/TeacherKBFB_rpt.aspx',[
                     'form_params' => [
@@ -122,7 +123,7 @@ class ImportController extends Controller
         }
         $course = $request->getBody();
         $course = mb_convert_encoding($course,'utf-8','gb2312');
-        if (strstr($course,'验证码错误')){
+        if (strstr($course,'验证码错误')){                                                             //判断验证码是否有误
             return $this->returnJSON(1, '验证码错误');
         }
         $crawler = new Crawler($course);
@@ -141,13 +142,13 @@ class ImportController extends Controller
             $x++;
         }
         $teacher = $this->handle($course_teacher,$techer_name);
-        $data_teacher = $course_class = $this->conversion($teacher,$this->semester);
-        $teacher_course =Teachercourse::where('id', $code['id'])->get();
+        $data_teacher = $this->conversion($teacher);
+        $teacher_course =Teacher::find($code['id'])->courses()->get();
         if(count($teacher_course)>0){
-            return $this->returnJSON(-2, '教师课表信息已存在，请先清除所有课表');
+            $this->romoveCourse($code['id']);
         }else{
             DB::beginTransaction();
-            try{
+            try{                                                                                              //进行课表的插入
                 $course_id = Course::max('id');
                 Course::insert($data_teacher);
                 DB::commit();
@@ -156,10 +157,9 @@ class ImportController extends Controller
                 }
 
                 for ($i = 0;$i < count($data_teacher); $i++){
-                    $teachers_id[$i]['teacher_id'] = $code['id'];
-                    $teachers_id[$i]['course_id'] = $course_id+1+$i;
+                    $teachers_id[$i] = $course_id+$i;
                 }
-                Teachercourse::insert($teachers_id);
+                Teacher::find($code['id'])->courses()->attach($teachers_id);
                 return $this->returnJSON('3',$data_teacher,$teacher_id);
             }catch (\Exception $e){
                 DB::rollback();
@@ -198,7 +198,7 @@ class ImportController extends Controller
         }elseif (count(explode('双',$type))>1){
             return 2;
         }
-        return 3;
+        return 0;
     }
 
     /*
@@ -263,7 +263,12 @@ class ImportController extends Controller
         return $course;
     }
 
-    public function conversion($course,$semester){
+    /*
+     *固定插入数据中课表的格式
+     *
+     * */
+    public function conversion($course){
+        $semester = Setting::max('id');
         for($i = 0; $i<count($course) ; $i++){
             $teacher[$i]['name'] = $course[$i][1];
             $teacher[$i]['location'] = $course[$i][9];
@@ -278,9 +283,27 @@ class ImportController extends Controller
         return $teacher;
     }
 
+    /*
+     * 出去非当前学期的课程
+     * */
+    public function romoveCourse($id){
+        DB::beginTransaction();
+        try{
+            $course_id = Teacher::find($id)->courses()->get();
+            Teacher::find($id)->courses()->detach();
+            for ($i = 0 ; $i < count($course_id) ;$i++ ){
+                $course[$i] = $course_id[$i]->id;
+            }
+            Course::destroy($course);
+            DB::commit();
+        }catch (\Exception $exception){
+            DB::rollback();
+        }
+    }
 
     public function s(){
-        $id = Course::max('id');
-        return $id;
+
+//        return count($course);
+
     }
 }

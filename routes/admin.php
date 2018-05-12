@@ -30,7 +30,7 @@ Route::prefix('admin')->namespace('Admin')->group(function (){
 
         Route::prefix('teacher')->group(function (){
             Route::get('/type', 'TeacherController@type');
-            Route::get('/data', 'TeacherController@data');
+            Route::any('/data', 'TeacherController@data');
             Route::post('/add', 'TeacherController@add');
             Route::post('/edit', 'TeacherController@edit');
             Route::post('/delete', 'TeacherController@delete');
@@ -46,6 +46,10 @@ Route::prefix('admin')->namespace('Admin')->group(function (){
             Route::any('/course/verification', 'ImportController@sendCode');
             Route::any('/teacherId', 'ImportController@teacherId');
             Route::any('/code', 'ImportController@code');
+
+
+            //教师分页查询
+            Route::post('/search/name','TeacherController@getTeacherInformation');
             Route::any('/s', 'ImportController@s');
         });
 

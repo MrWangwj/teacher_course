@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Teacher extends Model
 {
+
     //不可被批量复制的字段
     public $guarded = ['id'];
 

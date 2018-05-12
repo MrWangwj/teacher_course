@@ -282,6 +282,13 @@
             }
         });
 
+        document.onkeydown = function (event) {
+            var e = event || window.event || arguments.callee.caller.arguments[0];
+            if (e&&e.keyCode == 13){
+                login();
+            }
+        }
+
         function login(){
             let account = $('#account').val(),
                 password = $('#password').val(),
@@ -304,11 +311,11 @@
                 password: password,
                 validate: validate
             }, function (data, status) {
-                console.log(status);
+                console.log(data);
                 if(data.code === 1){
+                    console.log(99)
                     window.location = '/admin';
                 }else{
-
                     $('#msg').text(data.msg);
 
                 }

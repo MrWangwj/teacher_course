@@ -11,6 +11,7 @@ use App\Model\Teacher;
 use App\Model\Title;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Input;
 use Overtrue\LaravelPinyin\Facades\Pinyin;
 
 class TeacherController extends Controller
@@ -19,7 +20,7 @@ class TeacherController extends Controller
 
     //获取教师信息
     function data(){
-        $teachers = Teacher::with(['joblevel', 'jobtype', 'staffroom', 'title'])->orderBy('name_py')->get();
+        $teachers = Teacher::with(['joblevel', 'jobtype', 'staffroom', 'title'])->orderBy('name_py')->paginate(8);
         return $teachers;
     }
 
@@ -77,8 +78,6 @@ class TeacherController extends Controller
 //        $this->validate(request(),[
 //            'user-id' => 'required|numeric|exists:users,id',
 //        ]);
-
-
         $term_id = Setting::getNowTermId();
         $user = Teacher::with(['courses' => function($query)use($term_id){
             $query->select(['courses.id'])->where('term_id', $term_id);
@@ -270,5 +269,9 @@ class TeacherController extends Controller
         return $data;
     }
 
-
+    public function getTeacherInformation(){
+        $name = Input::get('name');
+        $teachers = Teacher::with(['joblevel', 'jobtype', 'staffroom', 'title'])->where('name','like','%'.$name.'%')->orderBy('name_py')->paginate(8);
+        return $teachers;
+    }
 }

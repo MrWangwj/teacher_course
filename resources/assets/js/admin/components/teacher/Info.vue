@@ -14,6 +14,17 @@
                                     <!--:value="item.value">-->
                             <!--</el-option>-->
                         <!--</el-select>-->
+                        <div class="tercher-search">
+                            <div id="teacher-name">
+                                教师姓名：
+                            </div>
+                            <el-input
+                                    placeholder="请输入教师姓名"
+                                    prefix-icon="el-icon-search"
+                                    v-model="teacherInformation"
+                                    class="input-teacher">
+                            </el-input>
+                        </div>
                     </div>
                 </el-col>
             </el-row>
@@ -155,6 +166,15 @@
                 <el-button type="primary" @click="save()">保存</el-button>
             </div>
         </el-dialog>
+        <div class="block">
+            <el-pagination
+                    @current-change="handleCurrentChange"
+                    :current-page.sync="currentPage4"
+                    :page-size="8"
+                    layout="total, prev, pager, next"
+                    :total="pageTotal">
+            </el-pagination>
+        </div>
     </div>
 </template>
 
@@ -162,6 +182,9 @@
     export default {
         data () {
             return {
+                pageTotal:0,
+                currentPage4: 0,
+                presentPage:1,
                 TeacherDialog: false,
                 TeacherDialogType: 0,
                 teacher: {
@@ -179,7 +202,8 @@
                     titles: [],
                     jobtypes: [],
                 },
-                teachers: []
+                teachers: [],
+                teacherInformation: ''
             }
         },
         methods: {
@@ -191,7 +215,7 @@
             getData(){
 
                 axios.get('/admin/teacher/data').then(res => {
-                    this.teachers = res.data;
+                    this.sendPage();
                 });
             },
 
@@ -235,7 +259,6 @@
                     }else{
                         this.$message.error(data.msg);
                     }
-                    // console.log(data);
                 });
             },
             editTeacherFun(){
@@ -251,7 +274,6 @@
                     }else{
                         this.$message.error(data.msg);
                     }
-                    // console.log(data);
                 });
             },
             save(){
@@ -279,7 +301,6 @@
                             }else{
                                 this.$message.error(data.msg);
                             }
-                            // console.log(data);
                         });
                     })
                     .catch(_ => {
@@ -289,16 +310,69 @@
 
             seeCourseBut(id){
                 this.$router.push('/teacher/course/type/one/'+id);
+            },
+
+            handleCurrentChange(presentPage) {
+                this.presentPage = presentPage;
+                this.sendPage();
+            },
+
+            sendPage() {
+                let this_ = this;
+                let page = this_.presentPage;
+                this_.currentPage4 = page;
+                let url;
+                if (sessionStorage.getItem('name')==null||sessionStorage.getItem('name')==""){
+                    url = '/admin/teacher/data?page='+page;
+                } else {
+                    url = '/admin/teacher/search/name?page='+page;
+                    this_.teacherInformation = sessionStorage.getItem('name');
+                }
+                axios.post(url,{
+                    'name':this_.teacherInformation
+                }).then(res=>{
+                    let data = res.data;
+                    this_.teachers = data.data;
+                    this_.pageTotal = data.total;
+                });
             }
 
         },
         mounted(){
             this.getType();
             this.getData();
+        },
+        watch:{
+            teacherInformation: function () {
+                let this_ = this;
+                document.onkeydown = function (event) {
+                    var e = event || window.event || arguments.callee.caller.arguments[0];
+                    if (e.keyCode == 13){
+                        this_.presentPage = 1;
+                        sessionStorage.setItem('name',this_.teacherInformation);
+                        this_.sendPage();
+                    }
+                }
+            }
         }
     }
 </script>
 
 <style scoped>
-
+    #teacher-name{
+        width: 30%;
+        display: inline-block;
+    }
+    .tercher-search{
+        display: inline-block;
+        width: 300px;
+        margin-left: 20px;
+    }
+    .input-teacher{
+        width: 68%;
+    }
+    .block{
+        float: right;
+        margin-top: 20px;
+    }
 </style>

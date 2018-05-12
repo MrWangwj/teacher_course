@@ -19,4 +19,6 @@ class Setting extends Model
         $termId = intval(self::where('key', 'nowTermId')->first()->value);
         return $termId;
     }
+
+
 }

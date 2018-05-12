@@ -314,8 +314,8 @@
                     axios.post('/admin/teacher/course/clear',{
                         'id': this.userId,
                     }).then(response => {
-//                            console.log(response.data);
                         let data = response.data;
+                        console.log(data);
                         if(parseInt(data.code) === 0){
                             this.$message.error(data.msg);
                         }else{
@@ -329,8 +329,6 @@
                 });
             },
             importCourse(){
-                // const id = this.$route.params.id;
-                // console.log(this.form.code);
                 if (this.form.code != ""){
                     axios.post('/admin/teacher/code',{
                         'code':this.form.code,

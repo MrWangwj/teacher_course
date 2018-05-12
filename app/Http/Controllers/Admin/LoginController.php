@@ -15,15 +15,13 @@ class LoginController extends Controller
             'password' => 'required',
             'validate' => 'required|captcha',
         ]);
-
         $user = Admin::where('account', \request('account'))->where('password', md5(md5(\request('password'))))->first();
-
         if($user){
             session(['admin' => $user]);
             return $this->returnJSON(1, 'success');
         }
 
-        return $this->returnJSON(0, '账号或密码错误');
+        return $this->returnJSON(env('DB_CONNECTION', 'mysql'), '账号或密码错误');
     }
 
     function logout(Request $request){
