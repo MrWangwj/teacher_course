@@ -5,6 +5,8 @@
                 <el-col :span="24">
                     <div class="grid-content bg-purple">
                         <el-button type="primary" size="mini" @click="addTeacherBut">添加</el-button>
+                        <el-button type="primary" size="mini" @click="courseImport">一键导课</el-button>
+                        <el-button type="primary" size="mini" @click="showTeacher">显示所有老师</el-button>
                         <!--<el-button type="primary" size="mini">导入</el-button>-->
                         <!--<el-select v-model="value" placeholder="请选择" size="mini" class="">-->
                             <!--<el-option-->
@@ -316,6 +318,11 @@
                 this.presentPage = presentPage;
                 this.sendPage();
             },
+            showTeacher() {
+                this.teacherInformation = '';
+                sessionStorage.setItem('name','');
+                this.sendPage();
+            },
 
             sendPage() {
                 let this_ = this;
@@ -335,7 +342,14 @@
                     this_.teachers = data.data;
                     this_.pageTotal = data.total;
                 });
-            }
+            },
+
+            courseImport() {
+                axios.post('/admin/teacher/teachers/import').then(res=>{
+                    let data = res.data;
+                    console.log(data);
+                });
+            },
 
         },
         mounted(){

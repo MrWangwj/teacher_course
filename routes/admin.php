@@ -51,6 +51,9 @@ Route::prefix('admin')->namespace('Admin')->group(function (){
             //教师分页查询
             Route::post('/search/name','TeacherController@getTeacherInformation');
             Route::any('/s', 'ImportController@s');
+
+            //一键导入所有老师的课
+            Route::post('/teachers/import','ImportController@teachersCourse');
         });
 
 
