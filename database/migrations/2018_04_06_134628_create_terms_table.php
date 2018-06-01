@@ -15,7 +15,7 @@ class CreateTermsTable extends Migration
     {
         Schema::create('terms', function (Blueprint $table) {
             $table->increments('id')->comment('id');
-            $table->string('name', 20)->unique()->comment('学期名称');
+            $table->string('name', 20)->unique()->comment('学期的名称');
             $table->string('start_school', '15')->comment('开学时间');
             $table->timestamps();
         });

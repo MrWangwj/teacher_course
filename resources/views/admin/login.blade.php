@@ -310,16 +310,16 @@
                 account: account,
                 password: password,
                 validate: validate
-            }, function (data, status) {
-                console.log(data);
-                if(data.code === 1){
-                    console.log(99)
-                    window.location = '/admin';
-                }else{
-                    $('#msg').text(data.msg);
+                }, function (data, status) {
+                    console.log(data);
+                    if(data.code === 1){
+                        console.log(99)
+                        window.location = '/admin';
+                    }else{
+                        $('#msg').text(data.msg);
 
-                }
-            }).fail(function() {
+                    }
+                }).fail(function() {
                 $('#msg').text("验证码错误");
             });
         }

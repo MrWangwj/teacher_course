@@ -10,5 +10,9 @@ export default new VueRouter({
             component: resolve => void(require(['../components/course/Count.vue'], resolve)),
 
         },
+        {
+            path: '/teacher/course',
+            component: resolve => void(require(['../components/course/Teacher.vue'], resolve)),
+        }
     ],
 });

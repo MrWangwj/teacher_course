@@ -5,7 +5,7 @@
                 <el-col :span="24">
                     <div class="grid-content bg-purple">
                         <el-button type="primary" size="mini" @click="addTeacherBut">添加</el-button>
-                        <el-button type="primary" size="mini" @click="courseImport">一键导课</el-button>
+                        <el-button type="primary" size="mini" @click="code = true">一键导课</el-button>
                         <el-button type="primary" size="mini" @click="showTeacher">显示所有老师</el-button>
                         <!--<el-button type="primary" size="mini">导入</el-button>-->
                         <!--<el-select v-model="value" placeholder="请选择" size="mini" class="">-->
@@ -177,6 +177,19 @@
                     :total="pageTotal">
             </el-pagination>
         </div>
+
+        <el-dialog title="请输入验证码" :visible.sync="code">
+            <el-form ref="form" :model="form" label-width="80px">
+                <img src="admin/teacher/course/verification" @click="changeUrl" id="code-img" alt="未加载">
+                <div class="code-div">
+                    <el-input v-model="form.code" class="code-input"></el-input>
+                </div>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="code = false">取 消</el-button>
+                <el-button type="primary" @click="courseImport">提 交</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -184,6 +197,10 @@
     export default {
         data () {
             return {
+                code:false,
+                form:{
+                    code:''
+                },
                 pageTotal:0,
                 currentPage4: 0,
                 presentPage:1,
@@ -345,12 +362,20 @@
             },
 
             courseImport() {
-                axios.post('/admin/teacher/teachers/import').then(res=>{
-                    let data = res.data;
-                    console.log(data);
-                });
+                if (this.form.code != ''){
+                    axios.post('/admin/teacher/teachers/import',{
+                        'code':this.form.code,
+                    }).then(res=>{
+                        let data = res.data;
+                        console.log(data);
+                    });
+                }
+
             },
 
+            changeUrl(){
+                document.getElementById("code-img").src="admin/teacher/course/verification?t="+new Date().getMilliseconds();
+            }
         },
         mounted(){
             this.getType();
@@ -388,5 +413,16 @@
     .block{
         float: right;
         margin-top: 20px;
+    }
+    #code-img{
+        display: inline-block;
+        width: 92px;
+        height: 42px;
+    }
+    .code-div{
+        display: inline-block;
+        width: 76%;
+        float: right;
+        margin: 1px 20px;
     }
 </style>
